@@ -58,8 +58,8 @@ def analyze_and_insert(excel, result_name):
                          bottom=Side(style='thin'))
     #  Заполнение заголовок столбцов
     sheet[f'A4'].value = "Дата"
-    sheet[f'B4'].value = "Расходы, шт"
-    sheet[f'C4'].value = "Приход, шт"
+    sheet[f'B4'].value = "Приход, шт"
+    sheet[f'C4'].value = "Расход, шт"
     sheet[f'D4'].value = "Остаток паллет"
     sheet[f'A4'].fill = PatternFill(fill_type='solid', start_color='fffeee')
     sheet[f'B4'].fill = PatternFill(fill_type='solid', start_color='fffeee')
@@ -102,7 +102,7 @@ def analyze_and_insert(excel, result_name):
     dates["end"] = index_of_end
     # print(list(dates.keys()))
     # print(list(dates.values()))
-    print()
+    # print()
     #  Далее будем считать количество паллетов;
     ind = 0
     ex_ind = 5
@@ -122,7 +122,8 @@ def analyze_and_insert(excel, result_name):
         profit = 0
         # Цикл между двумя датами;
         for i in range(start + 1, end):
-            tmp.append(excel.iat[i, 4])
+            tmp.append(excel.iat[i, index_of_product_j])
+
             # print(excel.iat[i, index_of_product_j][:12])
             # print(excel.iat[i, 16])
             if not pd.Series(excel.iat[i, -3]).hasnans:
@@ -133,31 +134,48 @@ def analyze_and_insert(excel, result_name):
             if type(excel.iat[i, index_of_product_j]) == str and excel.iat[i, index_of_product_j][:12] == "Обогреватель":
                 #  650, 550, 500
                 if excel.iat[i, index_of_product_j][21:21 + 3] in articles_1 or excel.iat[i, index_of_product_j][21:21 + 5] in articles_1:
-                    sum_1 += excel.iat[i, -1]
+                    if not pd.Series(excel.iat[i, -1]).hasnans:
+                        sum_1 += excel.iat[i, -1]
                 #  330/1, 360
                 if excel.iat[i, index_of_product_j][21:21 + 3] in articles_2 or excel.iat[i, index_of_product_j][21:21 + 5] in articles_2:
-                    sum_2 += excel.iat[i, -1]
+                    if not pd.Series(excel.iat[i, -1]).hasnans:
+                        sum_2 += excel.iat[i, -1]
                 #  150, 200, 300
                 if excel.iat[i, index_of_product_j][21:21 + 3] in articles_3 or excel.iat[i, index_of_product_j][21:21 + 5] in articles_3:
-                    sum_3 += excel.iat[i, -1]
+                    if not pd.Series(excel.iat[i, -1]).hasnans:
+                        sum_3 += excel.iat[i, -1]
 
         # print(f"Расходы: {expenses}")
         # print(f"Приход: {profit}")
 
-        #  Если имеются другие товары, то добавляется еще один паллет
-        """
-        ЭТО МЕСТО НУЖНО ПОТОМ БУДЕТ ПЕРЕДЕЛАТЬ
-        """
-        if pd.Series(tmp).hasnans:
-            is_product = True
+        # print(pd.Series(tmp))
+        for name in pd.Series(tmp):
+            if name[:5] != "Обогр":
+                # print(name[:5])
+                # print("Обогреватель не найдет:", name)
+                is_product = True
+                break
+
+        # if pd.Series(tmp).hasnans:
+        #     is_product = True
 
         #  Обычные суммы товаров
         all_sums = [sum_1, sum_2, sum_3]
         # print(all_sums)
         #  Округленное количество паллетов
-        sum_1_ceil = math.ceil(sum_1 / num[0])
-        sum_2_ceil = math.ceil(sum_2 / num[1])
-        sum_3_ceil = math.ceil(sum_3 / num[2])
+        if num[0] != 0:
+            sum_1_ceil = math.ceil(sum_1 / num[0])
+        else:
+            sum_1_ceil = 0
+        if num[1] != 0:
+            sum_2_ceil = math.ceil(sum_2 / num[1])
+        else:
+            sum_2_ceil = 0
+        if num[2] != 0:
+            sum_3_ceil = math.ceil(sum_3 / num[2])
+        else:
+            sum_3_ceil = 0
+
         all_sums_ceil = [sum_1_ceil, sum_2_ceil, sum_3_ceil]
         # print(all_sums_ceil)
 
@@ -183,6 +201,7 @@ def analyze_and_insert(excel, result_name):
         S = sum(all_sums_ceil)
         if is_product:
             S += 1
+            # print("!!!!! + 1 паллет !!!!!")
 
         # print("Кол-во Паллетов:", S)
 
@@ -260,12 +279,13 @@ def start(path, result_name='Report'):
     msg1, msg2 = analyze_and_insert(excel, result_name)
     msg3 = "Расчет окончен"
     msg4 = f"Программа работала {round(time.time() - t_0, 2)} сек"
+    #print(excel)
     return msg1, msg2, msg3, msg4
-    # print(excel)
+
 
 
 if __name__ == "__main__":
-    start()
+    start("Ланкс Новосиб.xls")
 
 
 

@@ -1,8 +1,10 @@
 import threading
-
+import traceback
 import wx
 import os
 import time
+
+import scripts
 from scripts import start
 from threading import Thread
 from pubsub import pub
@@ -47,7 +49,7 @@ class MyDialog(wx.Dialog):
 # Основной класс для создания приложения
 class MyFrame(wx.Frame):
     def __init__(self, parent, title):
-        super().__init__(parent, title=title, size=(500, 700))
+        super().__init__(parent, style=wx.DEFAULT_FRAME_STYLE ^ wx.RESIZE_BORDER, title=title, size=(500, 700))
         """НУЖНО ЗАПРЕТИТЬ ИЗМЕНЕНИЕ РАЗМЕРОВ ОКНА"""
         self.path_name = 0
 
@@ -186,7 +188,8 @@ class MyFrame(wx.Frame):
                 wx.CallAfter(pub.sendMessage, "update", msg="Thread finished!")  # Завершение текущего потока
                 self.console.WriteText(f'{time.asctime()[11:19]} - Создан файл: Report.xlsx \n')
             except:
-                self.console.WriteText(f"{time.asctime()[11:19]} - НЕИЗВЕСТНАЯ ОШИБКА! Возможно вы выбрали неверно оформленный файл\n")
+                traceback.print_exc()
+                self.console.WriteText(f"{time.asctime()[11:19]} - НЕИЗВЕСТНАЯ ОШИБКА! Отправьте скриншот черно-белой консоли с непонятным текстом разработчику \n")
                 wx.CallAfter(pub.sendMessage, "update", msg="Thread finished!")  # Завершение текущего потока
         else:
             try:
@@ -200,16 +203,17 @@ class MyFrame(wx.Frame):
                 wx.CallAfter(pub.sendMessage, "update", msg="Thread finished!")  # Завершение текущего потока
                 self.console.WriteText(f'- Создан файл: {self.tc2.GetValue()}\n')
             except:
-                self.console.WriteText(f"{time.asctime()[11:19]} - НЕИЗВЕСТНАЯ ОШИБКА! Возможно вы выбрали неверно оформленный файл\n")
+                traceback.print_exc()
+                self.console.WriteText(f"{time.asctime()[11:19]} - НЕИЗВЕСТНАЯ ОШИБКА! Отправьте скриншот черно-белой консоли с непонятным текстом разработчику \n")
 
     # Функция для открытия файла
     def open_file(self, event):
         if self.tc1.GetValue() == '':
-            self.console.WriteText(f'{time.asctime()[11:19]} - Попытка открыть отчет... Нужно снала создать файл а, потом открывать его!\n')
+            self.console.WriteText(f'{time.asctime()[11:19]} - Попытка открыть отчет... Нужно снала создать файл а, потом открывать его! \n')
         else:
             thr = threading.Thread(target=self.threading_open)  # создание потока для открытия excel - файла
             thr.start()
-            self.console.WriteText(f"{time.asctime()[11:19]} - Открыт файл: Report.xlsx\n")
+            self.console.WriteText(f"{time.asctime()[11:19]} - Открыт файл: Report.xlsx \n")
             self.disable_buttons()  # Отключение всех кнопок на время работы потока
             # btn = event.GetEventObject()
             # btn.Disable()

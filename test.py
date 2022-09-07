@@ -1,3 +1,3 @@
-import time
+import math
 
-print(time.asctime()[11:19])
+print(math.ceil(3.5))
