@@ -188,8 +188,10 @@ class MyFrame(wx.Frame):
                 wx.CallAfter(pub.sendMessage, "update", msg="Thread finished!")  # Завершение текущего потока
                 self.console.WriteText(f'{time.asctime()[11:19]} - Создан файл: Report.xlsx \n')
             except:
-                traceback.print_exc()
-                self.console.WriteText(f"{time.asctime()[11:19]} - НЕИЗВЕСТНАЯ ОШИБКА! Отправьте скриншот черно-белой консоли с непонятным текстом разработчику \n")
+
+                self.console.WriteText(f"{time.asctime()[11:19]} - НЕИЗВЕСТНАЯ ОШИБКА! Отправьте скриншот  разработчику \n")
+                self.console.WriteText(
+                    f"{time.asctime()[11:19]} - {traceback.format_exc()} \n")
                 wx.CallAfter(pub.sendMessage, "update", msg="Thread finished!")  # Завершение текущего потока
         else:
             try:
@@ -203,8 +205,9 @@ class MyFrame(wx.Frame):
                 wx.CallAfter(pub.sendMessage, "update", msg="Thread finished!")  # Завершение текущего потока
                 self.console.WriteText(f'- Создан файл: {self.tc2.GetValue()}\n')
             except:
-                traceback.print_exc()
                 self.console.WriteText(f"{time.asctime()[11:19]} - НЕИЗВЕСТНАЯ ОШИБКА! Отправьте скриншот черно-белой консоли с непонятным текстом разработчику \n")
+                self.console.WriteText(
+                    f"{time.asctime()[11:19]} - {traceback.format_exc()} \n")
 
     # Функция для открытия файла
     def open_file(self, event):
